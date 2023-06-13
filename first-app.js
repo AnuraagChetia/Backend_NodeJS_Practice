@@ -1,12 +1,8 @@
-const product = (i, j) => {
-  return i * j;
-};
-console.log(product(2, 3));
-const student = {
-  name: "Anuraag",
-  age: "21",
-  greet() {
-    return "Hello" + this.name;
-  },
-};
-console.log(student.greet());
+const fruits = ["apple", "oranges", " ", "mango", " ", "lemon"];
+const newFruits = fruits.map((fruit) => {
+  if (fruit === " ") {
+    fruit = "empty string";
+  }
+  return fruit;
+});
+console.log(newFruits);
