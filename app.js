@@ -1,28 +1,48 @@
 const http = require("http");
+const fs = require("fs");
 
 const server = http.createServer((req, res) => {
   const url = req.url;
-  if (url === "/home") {
+  const method = req.method;
+  if (url === "/") {
+    const message = fs.readFileSync("./message.txt", (err, data) => {
+      const msg = [];
+      msg.push(data);
+      const parsedmsg = Buffer.concat(msg).toString();
+      console.log(parsedmsg);
+      return parsedmsg;
+    });
     res.write("<html>");
-    res.write("<head><title>My Home Page</title></head>");
-    res.write("<body><h1>Welcome Home!</h1></body>");
+    res.write("<head><title>Enter Message</title><head>");
+    res.write(
+      `<body><p>${message}</p><form action="/message" method="POST"><input type="text" name="message"><button type="submit">Send</button></form></body>`
+    );
     res.write("</html>");
     return res.end();
   }
-  if (url === "/about") {
-    res.write("<html>");
-    res.write("<head><title>My Home Page</title></head>");
-    res.write("<body><h1>Welcome to about us page</h1></body>");
-    res.write("</html>");
-    res.end();
+  if (url === "/message" && method === "POST") {
+    const body = [];
+    req.on("data", (chunk) => {
+      body.push(chunk);
+      // console.log(body);
+    });
+    return req.on("end", () => {
+      const parsedBody = Buffer.concat(body).toString();
+      const message = parsedBody.split("=")[1];
+      // console.log(message);
+      fs.writeFile("message.txt", message, (err) => {
+        res.statusCode = 302;
+        res.setHeader("Location", "/");
+        return res.end();
+      });
+    });
   }
-  if (url === "/node") {
-    res.write("<html>");
-    res.write("<head><title>My Home Page</title></head>");
-    res.write("<body><h1>Welcome to node js project!</h1></body>");
-    res.write("</html>");
-    res.end();
-  }
-  //   res.setHeader("Content-Type", "text/html");
+  res.setHeader("Content-Type", "text/html");
+  res.write("<html>");
+  res.write("<head><title>My First Page</title><head>");
+  res.write("<body><h1>Hello from my Node.js Server!</h1></body>");
+  res.write("</html>");
+  res.end();
 });
+
 server.listen(3000);
